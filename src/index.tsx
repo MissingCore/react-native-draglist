@@ -403,6 +403,7 @@ function DragListImpl<T>(
           keyExtractor={keyExtractor}
           data={data}
           renderItem={renderDragItem}
+          // @ts-ignore - Throws TypeScript error on build saying component isn't assignable to `FunctionComponent<any>`.
           CellRendererComponent={CellRendererComponent}
           extraData={extra}
           scrollEnabled={!activeKey.current}
