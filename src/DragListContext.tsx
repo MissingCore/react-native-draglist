@@ -1,6 +1,6 @@
 // Much of this comes from concepts in https://github.com/computerjazz/react-native-draggable-flatlist/blob/main/src/context/draggableFlatListContext.tsx
 import React, { useContext, useMemo } from "react";
-import { Animated } from "react-native";
+import type { Animated } from "react-native";
 
 // Tracks the position and extent (width or height) in an axis-independent way
 // (i.e. if horizontal, then pos is an x and extent is a width).

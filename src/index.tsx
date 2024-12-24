@@ -1,3 +1,5 @@
+import type { FlashListProps, ListRenderItemInfo } from "@shopify/flash-list";
+import { CellContainer, FlashList } from "@shopify/flash-list";
 import React, {
   useCallback,
   useEffect,
@@ -5,26 +7,19 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Animated,
-  Easing,
-  FlatList,
-  FlatListProps,
+import type {
   LayoutChangeEvent,
-  ListRenderItemInfo,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  PanResponder,
   StyleProp,
-  View,
   ViewStyle,
 } from "react-native";
-import {
-  DragListProvider,
-  LayoutCache,
-  PosExtent,
-  useDragListContext,
-} from "./DragListContext";
+import { Animated, Easing, PanResponder, View } from "react-native";
+import type { LayoutCache, PosExtent } from "./DragListContext";
+import { DragListProvider, useDragListContext } from "./DragListContext";
+
+// FlashList's `CellRendererComponent` expects a `<CellContainer />`.
+const AnimatedCellContainer = Animated.createAnimatedComponent(CellContainer);
 
 // Each renderItem call is given this when rendering a DragList
 export interface DragListRenderItemInfo<T> extends ListRenderItemInfo<T> {
@@ -56,14 +51,14 @@ export interface DragListRenderItemInfo<T> extends ListRenderItemInfo<T> {
   isActive: boolean;
 }
 
-// Used merely to trigger FlatList to re-render when necessary. Changing the
+// Used merely to trigger FlashList to re-render when necessary. Changing the
 // activeKey or the panIndex should both trigger re-render.
 interface ExtraData {
   activeKey: string | null;
   panIndex: number;
 }
 
-interface Props<T> extends Omit<FlatListProps<T>, "renderItem"> {
+interface Props<T> extends Omit<FlashListProps<T>, "renderItem"> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
   renderItem: (info: DragListRenderItemInfo<T>) => React.ReactElement | null;
@@ -74,12 +69,11 @@ interface Props<T> extends Omit<FlatListProps<T>, "renderItem"> {
   onReordered?: (fromIndex: number, toIndex: number) => Promise<void> | void;
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onLayout?: (e: LayoutChangeEvent) => void;
-  CustomFlatList?: typeof FlatList;
 }
 
 function DragListImpl<T>(
   props: Props<T>,
-  ref?: React.ForwardedRef<FlatList<T> | null>
+  ref?: React.ForwardedRef<FlashList<T> | null>,
 ) {
   const {
     containerStyle,
@@ -90,7 +84,6 @@ function DragListImpl<T>(
     onScroll,
     onLayout,
     renderItem,
-    CustomFlatList = FlatList,
     ...rest
   } = props;
   // activeKey and activeIndex track the item being dragged
@@ -111,11 +104,11 @@ function DragListImpl<T>(
   // item's center.
   const grantActiveCenterOffsetRef = useRef(0);
   const autoScrollTimerRef = useRef<ReturnType<typeof setInterval> | null>(
-    null
+    null,
   );
   const hoverRef = useRef(props.onHoverChanged);
   const reorderRef = useRef(props.onReordered);
-  const flatRef = useRef<FlatList<T> | null>(null);
+  const flatRef = useRef<FlashList<T> | null>(null);
   const flatWrapRef = useRef<View>(null);
   const flatWrapLayout = useRef<PosExtent>({
     pos: 0,
@@ -151,7 +144,7 @@ function DragListImpl<T>(
               ...flatWrapLayout.current,
               pos: props.horizontal ? pageX : pageY,
             };
-          }
+          },
         );
 
         if (activeKey.current && layouts.hasOwnProperty(activeKey.current)) {
@@ -210,7 +203,7 @@ function DragListImpl<T>(
           while (
             curIndex < dataRef.current.length &&
             layouts.hasOwnProperty(
-              (key = keyExtractor(dataRef.current[curIndex], curIndex))
+              (key = keyExtractor(dataRef.current[curIndex], curIndex)),
             ) &&
             layouts[key].pos + layouts[key].extent <
               clientPos + grantActiveCenterOffsetRef.current
@@ -231,7 +224,7 @@ function DragListImpl<T>(
         const trailingEdge = wrapPos + dragItemExtent / 2;
         let offset = 0;
 
-        // We auto-scroll the FlatList a bit when you drag off the top or
+        // We auto-scroll the FlashList a bit when you drag off the top or
         // bottom edge (or right/left for horizontal ones). These calculations
         // can be a bit finnicky. You need to consider client coordinates and
         // coordinates relative to the screen.
@@ -287,7 +280,7 @@ function DragListImpl<T>(
         }
         reset();
       },
-    })
+    }),
   ).current;
 
   const reset = useCallback(() => {
@@ -350,7 +343,7 @@ function DragListImpl<T>(
         isActive,
       });
     },
-    [props.renderItem, data.length]
+    [props.renderItem, data.length],
   );
 
   const onDragScroll = useCallback(
@@ -362,7 +355,7 @@ function DragListImpl<T>(
         onScroll(event);
       }
     },
-    [onScroll]
+    [onScroll],
   );
 
   const onDragLayout = useCallback(
@@ -378,7 +371,7 @@ function DragListImpl<T>(
         onLayout(evt);
       }
     },
-    [onLayout]
+    [onLayout],
   );
   return (
     <DragListProvider
@@ -396,8 +389,8 @@ function DragListImpl<T>(
         {...panResponder.panHandlers}
         onLayout={onDragLayout}
       >
-        <CustomFlatList
-          ref={r => {
+        <FlashList
+          ref={(r) => {
             flatRef.current = r;
             if (!!ref) {
               if (typeof ref === "function") {
@@ -426,16 +419,15 @@ function DragListImpl<T>(
 const SLIDE_MILLIS = 200;
 const AUTO_SCROLL_MILLIS = 200;
 
-type CellRendererProps<T> = {
-  item: T;
+type CellRendererProps = {
   index: number;
-  children: React.ReactNode;
+  children: React.JSX.Element;
   onLayout?: (e: LayoutChangeEvent) => void;
   style?: StyleProp<ViewStyle>;
 };
 
-function CellRendererComponent<T>(props: CellRendererProps<T>) {
-  const { item, index, children, style, onLayout, ...rest } = props;
+function CellRendererComponent<T>(props: CellRendererProps) {
+  const { index, children, style, onLayout, ...rest } = props;
   const {
     keyExtractor,
     activeKey,
@@ -446,7 +438,14 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
     horizontal,
   } = useDragListContext<T>();
   const [isOffset, setIsOffset] = useState(false); // Whether anim != 0
-  const key = keyExtractor(item, index);
+  /*
+    FIXME: FlashList's implementation of `CellRendererComponent` doesn't
+    include the `item` prop, so we need to derive it from `children` as
+    it's pass through its `data` prop.
+
+    SEE: https://shopify.github.io/flash-list/docs/usage/#cellrenderercomponent
+  */
+  const key = keyExtractor(children.props.data as T, index);
   const isActive = key === activeKey;
   const ref = useRef<View>(null);
   const anim = useRef(new Animated.Value(0)).current;
@@ -459,7 +458,7 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
       isActive
         ? { elevation: new Animated.Value(1), zIndex: new Animated.Value(999) }
         : { elevation: new Animated.Value(0), zIndex: new Animated.Value(0) },
-    [isActive]
+    [isActive],
   );
 
   useEffect(() => {
@@ -513,9 +512,11 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
   }
 
   return (
-    <Animated.View
+    <AnimatedCellContainer
+      // @ts-expect-error - Detects the ref type as `undefined`.
       ref={ref}
       key={key}
+      index={index}
       {...rest}
       style={[
         style,
@@ -536,13 +537,13 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
       onLayout={onCellLayout}
     >
       {children}
-    </Animated.View>
+    </AnimatedCellContainer>
   );
 }
 
 declare module "react" {
   function forwardRef<T, P = {}>(
-    render: (props: P, ref: React.Ref<T>) => React.ReactNode | null
+    render: (props: P, ref: React.Ref<T>) => React.ReactNode | null,
   ): (props: P & React.RefAttributes<T>) => React.ReactNode | null;
 }
 
