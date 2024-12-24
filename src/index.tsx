@@ -407,8 +407,8 @@ function DragListImpl<T>(
           extraData={extra}
           scrollEnabled={!activeKey.current}
           onScroll={onDragScroll}
+          // https://reactnative.dev/docs/scrollview#scrolleventthrottle
           scrollEventThrottle={16} // From react-native-draggable-flatlist; no idea why.
-          removeClippedSubviews={false} // https://github.com/facebook/react-native/issues/18616
           {...rest}
         />
       </View>
@@ -426,7 +426,9 @@ type CellRendererProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-function CellRendererComponent<T>(props: CellRendererProps) {
+const CellRendererComponent = React.forwardRef(function CellRendererComponent<
+  T,
+>(props: CellRendererProps, ref: React.ForwardedRef<View>) {
   const { index, children, style, onLayout, ...rest } = props;
   const {
     keyExtractor,
@@ -447,7 +449,6 @@ function CellRendererComponent<T>(props: CellRendererProps) {
   */
   const key = keyExtractor(children.props.data as T, index);
   const isActive = key === activeKey;
-  const ref = useRef<View>(null);
   const anim = useRef(new Animated.Value(0)).current;
   // https://github.com/fivecar/react-native-draglist/issues/53
   // Starting RN 0.76.3, we need to use Animated.Value instead of a plain number
@@ -515,7 +516,6 @@ function CellRendererComponent<T>(props: CellRendererProps) {
     <AnimatedCellContainer
       // @ts-expect-error - Detects the ref type as `undefined`.
       ref={ref}
-      key={key}
       index={index}
       {...rest}
       style={[
@@ -539,7 +539,7 @@ function CellRendererComponent<T>(props: CellRendererProps) {
       {children}
     </AnimatedCellContainer>
   );
-}
+});
 
 declare module "react" {
   function forwardRef<T, P = {}>(
