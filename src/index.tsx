@@ -49,6 +49,11 @@ export interface DragListRenderItemInfo<T> extends ListRenderItemInfo<T> {
    * Whether the item is being dragged at the moment.
    */
   isActive: boolean;
+
+  /**
+   * Whether we're currently dragging something.
+   */
+  isDragging: boolean;
 }
 
 // Used merely to trigger FlashList to re-render when necessary. Changing the
@@ -341,6 +346,7 @@ function DragListImpl<T>(
         onDragEnd,
         onEndDrag: onDragEnd,
         isActive,
+        isDragging: activeIndex.current !== -1,
       });
     },
     [props.renderItem, data.length],
@@ -373,6 +379,7 @@ function DragListImpl<T>(
     },
     [onLayout],
   );
+
   return (
     <DragListProvider
       activeKey={activeKey.current}
