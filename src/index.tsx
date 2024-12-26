@@ -67,7 +67,8 @@ interface Props<T> extends Omit<FlashListProps<T>, "renderItem"> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
   renderItem: (info: DragListRenderItemInfo<T>) => React.ReactElement | null;
-  containerStyle?: StyleProp<ViewStyle>;
+  /** Applies style to the `<View />` wrapping the `<FlashList />`. */
+  wrapperStyle?: StyleProp<ViewStyle>;
   onDragBegin?: () => void;
   onDragEnd?: () => void;
   onHoverChanged?: (hoverIndex: number) => Promise<void> | void;
@@ -81,7 +82,7 @@ function DragListImpl<T>(
   ref?: React.ForwardedRef<FlashList<T> | null>,
 ) {
   const {
-    containerStyle,
+    wrapperStyle,
     data,
     keyExtractor,
     onDragBegin,
@@ -392,7 +393,7 @@ function DragListImpl<T>(
     >
       <View
         ref={flatWrapRef}
-        style={containerStyle}
+        style={[{ flex: 1 }, wrapperStyle]}
         {...panResponder.panHandlers}
         onLayout={onDragLayout}
       >
