@@ -1,3 +1,12 @@
+> [!IMPORTANT]  
+> **Differences between the main package:**
+> - `@shopify/flash-list` is a peer dependency.
+> - Exported `DragList` uses `<FlashList />`.
+>   - Removed the `CustomFlatList` prop and renamed `containerStyle` to `wrapperStyle`.
+>   - `renderItem` function now provides an `isDragging` value.
+>   - The `<View />` wrapping the `<FlashList />` by default have `flex: 1` applied.
+> - Removed the `key` prop on the rendered items ([for performance reasons](https://shopify.github.io/flash-list/docs/fundamentals/performant-components#remove-key-prop)).
+>   - This means you need to handle the [side effects of recycling](https://shopify.github.io/flash-list/docs/recycling).
 
 # react-native-draglist
 
