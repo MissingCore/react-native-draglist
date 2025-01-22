@@ -60,7 +60,7 @@ interface ExtraData {
   panIndex: number;
 }
 
-interface Props<T> extends Omit<FlatListProps<T>, "renderItem"> {
+export interface DragListProps<T> extends Omit<FlatListProps<T>, "renderItem"> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
   renderItem: (info: DragListRenderItemInfo<T>) => React.ReactElement | null;
@@ -75,7 +75,7 @@ interface Props<T> extends Omit<FlatListProps<T>, "renderItem"> {
 }
 
 function DragListImpl<T>(
-  props: Props<T>,
+  props: DragListProps<T>,
   ref?: React.ForwardedRef<FlatList<T> | null>,
 ) {
   const {
@@ -548,7 +548,7 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
 }
 
 const DragList = React.forwardRef(DragListImpl) as <T>(
-  props: Props<T> & { ref?: React.ForwardedRef<FlatList<T>> },
+  props: DragListProps<T> & { ref?: React.ForwardedRef<FlatList<T>> },
 ) => React.ReactElement;
 
 export default DragList;
