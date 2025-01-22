@@ -77,7 +77,7 @@ interface Props<T> extends Omit<FlashListProps<T>, "renderItem"> {
   onLayout?: (e: LayoutChangeEvent) => void;
 }
 
-function DragListImpl<T>(
+function FlashDragListImpl<T>(
   props: Props<T>,
   ref?: React.ForwardedRef<FlashList<T> | null>,
 ) {
@@ -560,8 +560,8 @@ const CellRendererComponent = React.forwardRef(function CellRendererComponent<
   );
 });
 
-const DragList = React.forwardRef(DragListImpl) as <T>(
+const FlashDragList = React.forwardRef(FlashDragListImpl) as <T>(
   props: Props<T> & { ref?: React.ForwardedRef<FlashList<T>> },
 ) => React.ReactElement;
 
-export default DragList;
+export default FlashDragList;
