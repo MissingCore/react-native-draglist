@@ -1,12 +1,18 @@
 {
-  "extends": "@tsconfig/react-native/tsconfig.json",     /* Recommended React Native TSConfig base */
+  "extends": "@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "./dist",
+    "target": "ESNext",
     "strict": true,
-    "module": "ES2015",
-    "noEmit": false,
-    "jsx": "react",
+    "jsx": "react-native",
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
+    // "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": false,
     "types": []
   },
   "include": ["src/**/*"],
