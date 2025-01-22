@@ -5,26 +5,18 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Animated,
-  Easing,
-  FlatList,
+import type {
   FlatListProps,
   LayoutChangeEvent,
   ListRenderItemInfo,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  PanResponder,
   StyleProp,
-  View,
   ViewStyle,
 } from "react-native";
-import {
-  DragListProvider,
-  LayoutCache,
-  PosExtent,
-  useDragListContext,
-} from "./DragListContext";
+import { Animated, Easing, FlatList, PanResponder, View } from "react-native";
+import type { LayoutCache, PosExtent } from "./DragListContext";
+import { DragListProvider, useDragListContext } from "./DragListContext";
 
 // Each renderItem call is given this when rendering a DragList
 export interface DragListRenderItemInfo<T> extends ListRenderItemInfo<T> {
@@ -54,6 +46,11 @@ export interface DragListRenderItemInfo<T> extends ListRenderItemInfo<T> {
    * Whether the item is being dragged at the moment.
    */
   isActive: boolean;
+
+  /**
+   * Whether we're currently dragging something.
+   */
+  isDragging: boolean;
 }
 
 // Used merely to trigger FlatList to re-render when necessary. Changing the
@@ -79,7 +76,7 @@ interface Props<T> extends Omit<FlatListProps<T>, "renderItem"> {
 
 function DragListImpl<T>(
   props: Props<T>,
-  ref?: React.ForwardedRef<FlatList<T> | null>
+  ref?: React.ForwardedRef<FlatList<T> | null>,
 ) {
   const {
     containerStyle,
@@ -112,7 +109,7 @@ function DragListImpl<T>(
   const grantActiveCenterOffsetRef = useRef(0);
   const flatWrapRefPosUpdatedRef = useRef(false);
   const autoScrollTimerRef = useRef<ReturnType<typeof setInterval> | null>(
-    null
+    null,
   );
   const hoverRef = useRef(props.onHoverChanged);
   const reorderRef = useRef(props.onReordered);
@@ -169,7 +166,7 @@ function DragListImpl<T>(
             }
 
             flatWrapRefPosUpdatedRef.current = true;
-          }
+          },
         );
 
         onDragBegin?.();
@@ -219,7 +216,7 @@ function DragListImpl<T>(
           while (
             curIndex < dataRef.current.length &&
             layouts.hasOwnProperty(
-              (key = keyExtractor(dataRef.current[curIndex], curIndex))
+              (key = keyExtractor(dataRef.current[curIndex], curIndex)),
             ) &&
             layouts[key].pos + layouts[key].extent <
               clientPos + grantActiveCenterOffsetRef.current
@@ -296,7 +293,7 @@ function DragListImpl<T>(
         }
         reset();
       },
-    })
+    }),
   ).current;
 
   const reset = useCallback(() => {
@@ -357,9 +354,10 @@ function DragListImpl<T>(
         onDragEnd,
         onEndDrag: onDragEnd,
         isActive,
+        isDragging: activeIndex.current !== -1,
       });
     },
-    [props.renderItem, data.length]
+    [props.renderItem, data.length],
   );
 
   const onDragScroll = useCallback(
@@ -371,7 +369,7 @@ function DragListImpl<T>(
         onScroll(event);
       }
     },
-    [onScroll]
+    [onScroll],
   );
 
   const onDragLayout = useCallback(
@@ -387,7 +385,7 @@ function DragListImpl<T>(
         onLayout(evt);
       }
     },
-    [onLayout]
+    [onLayout],
   );
   return (
     <DragListProvider
@@ -406,7 +404,7 @@ function DragListImpl<T>(
         onLayout={onDragLayout}
       >
         <CustomFlatList
-          ref={r => {
+          ref={(r) => {
             flatRef.current = r;
             if (!!ref) {
               if (typeof ref === "function") {
@@ -468,7 +466,7 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
       isActive
         ? { elevation: new Animated.Value(1), zIndex: new Animated.Value(999) }
         : { elevation: new Animated.Value(0), zIndex: new Animated.Value(0) },
-    [isActive]
+    [isActive],
   );
 
   useEffect(() => {
@@ -550,7 +548,7 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
 }
 
 const DragList = React.forwardRef(DragListImpl) as <T>(
-  props: Props<T> & { ref?: React.ForwardedRef<FlatList<T>> }
+  props: Props<T> & { ref?: React.ForwardedRef<FlatList<T>> },
 ) => React.ReactElement;
 
 export default DragList;
