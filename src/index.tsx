@@ -420,7 +420,7 @@ function DragListImpl<T>(
         onDragEnd,
         onEndDrag: onDragEnd,
         isActive,
-        isDragging: activeDataRef.current?.index !== -1,
+        isDragging: activeDataRef.current !== null,
       });
     },
     [props.renderItem, data.length],
