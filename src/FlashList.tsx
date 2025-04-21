@@ -67,7 +67,8 @@ interface ExtraData {
   detritus?: string;
 }
 
-export interface FlashDragListProps<T> extends Omit<FlashListProps<T>, "renderItem"> {
+export interface FlashDragListProps<T>
+  extends Omit<FlashListProps<T>, "renderItem"> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
   renderItem: (info: DragListRenderItemInfo<T>) => React.ReactElement | null;
@@ -122,7 +123,7 @@ function FlashDragListImpl<T>(
   // #78 - keep onHoverChanged up to date in our ref
   hoverRef.current = useMemo(
     () => props.onHoverChanged,
-    [props.onHoverChanged]
+    [props.onHoverChanged],
   );
   const reorderRef = useRef(props.onReordered);
   reorderRef.current = useMemo(() => props.onReordered, [props.onReordered]);
@@ -157,7 +158,7 @@ function FlashDragListImpl<T>(
         useNativeDriver: true,
       }).start();
     },
-    [pan]
+    [pan],
   );
 
   const shouldCapturePan = useCallback(() => {
@@ -202,7 +203,7 @@ function FlashDragListImpl<T>(
 
       onDragBegin?.();
     },
-    []
+    [],
   );
 
   const onPanResponderMove = useCallback(
@@ -238,7 +239,10 @@ function FlashDragListImpl<T>(
         while (
           curIndex < dataRef.current.length &&
           layouts.hasOwnProperty(
-            (key = keyExtractorRef.current(dataRef.current[curIndex], curIndex))
+            (key = keyExtractorRef.current(
+              dataRef.current[curIndex],
+              curIndex,
+            )),
           ) &&
           layouts[key].pos + layouts[key].extent <
           clientPos + grantActiveCenterOffsetRef.current
@@ -286,7 +290,7 @@ function FlashDragListImpl<T>(
         updateRendering();
       }
     },
-    []
+    [],
   );
 
   const onPanResponderRelease = useCallback(
@@ -339,7 +343,7 @@ function FlashDragListImpl<T>(
         reset();
       }
     },
-    []
+    [],
   );
 
   const panResponder = useRef(
@@ -351,7 +355,7 @@ function FlashDragListImpl<T>(
       onPanResponderGrant,
       onPanResponderMove,
       onPanResponderRelease,
-    })
+    }),
   ).current;
 
   const clearAutoScrollTimer = useCallback(() => {
@@ -513,7 +517,9 @@ type CellRendererProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-function CellRendererComponent<T>(props: CellRendererProps) {
+const CellRendererComponent = React.forwardRef(function CellRendererComponent<
+  T,
+>(props: CellRendererProps, ref: React.ForwardedRef<View>) {
   const { index, children, onLayout, ...rest } = props;
   const {
     keyExtractor,
@@ -566,7 +572,7 @@ function CellRendererComponent<T>(props: CellRendererProps) {
         ? { pos: layout.x, extent: layout.width }
         : { pos: layout.y, extent: layout.height };
     },
-    [onLayout, horizontal, key, layouts]
+    [onLayout, horizontal, key, layouts],
   );
   // #76 This is done as a memo instead of an effect because we want the anim change to start right
   // away, even on this very render (e.g. cases where we set it immediately to zero), whereas an
@@ -610,11 +616,18 @@ function CellRendererComponent<T>(props: CellRendererProps) {
   }, [index, panIndex, key, activeData, horizontal, isReordering]);
 
   return (
-    <AnimatedCellContainer index={index} {...rest} style={style} onLayout={onCellLayout}>
+    <AnimatedCellContainer
+      // @ts-expect-error - Detects the ref type as `undefined`.
+      ref={ref}
+      index={index}
+      {...rest}
+      style={style}
+      onLayout={onCellLayout}
+    >
       {children}
     </AnimatedCellContainer>
   );
-}
+});
 
 const FlashDragList = React.forwardRef(FlashDragListImpl) as <T>(
   props: FlashDragListProps<T> & { ref?: React.ForwardedRef<FlashList<T>> },

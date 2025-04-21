@@ -120,7 +120,7 @@ function DragListImpl<T>(
   // #78 - keep onHoverChanged up to date in our ref
   hoverRef.current = useMemo(
     () => props.onHoverChanged,
-    [props.onHoverChanged]
+    [props.onHoverChanged],
   );
   const reorderRef = useRef(props.onReordered);
   reorderRef.current = useMemo(() => props.onReordered, [props.onReordered]);
@@ -155,7 +155,7 @@ function DragListImpl<T>(
         useNativeDriver: true,
       }).start();
     },
-    [pan]
+    [pan],
   );
 
   const shouldCapturePan = useCallback(() => {
@@ -200,7 +200,7 @@ function DragListImpl<T>(
 
       onDragBegin?.();
     },
-    []
+    [],
   );
 
   const onPanResponderMove = useCallback(
@@ -236,7 +236,10 @@ function DragListImpl<T>(
         while (
           curIndex < dataRef.current.length &&
           layouts.hasOwnProperty(
-            (key = keyExtractorRef.current(dataRef.current[curIndex], curIndex))
+            (key = keyExtractorRef.current(
+              dataRef.current[curIndex],
+              curIndex,
+            )),
           ) &&
           layouts[key].pos + layouts[key].extent <
             clientPos + grantActiveCenterOffsetRef.current
@@ -284,7 +287,7 @@ function DragListImpl<T>(
         updateRendering();
       }
     },
-    []
+    [],
   );
 
   const onPanResponderRelease = useCallback(
@@ -337,7 +340,7 @@ function DragListImpl<T>(
         reset();
       }
     },
-    []
+    [],
   );
 
   const panResponder = useRef(
@@ -349,7 +352,7 @@ function DragListImpl<T>(
       onPanResponderGrant,
       onPanResponderMove,
       onPanResponderRelease,
-    })
+    }),
   ).current;
 
   const clearAutoScrollTimer = useCallback(() => {
@@ -558,7 +561,7 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
         ? { pos: layout.x, extent: layout.width }
         : { pos: layout.y, extent: layout.height };
     },
-    [onLayout, horizontal, key, layouts]
+    [onLayout, horizontal, key, layouts],
   );
   // #76 This is done as a memo instead of an effect because we want the anim change to start right
   // away, even on this very render (e.g. cases where we set it immediately to zero), whereas an
