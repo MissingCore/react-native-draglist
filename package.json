@@ -33,6 +33,11 @@
     "react": ">=17.0.1",
     "react-native": ">=0.64.0"
   },
+  "peerDependenciesMeta": {
+    "@shopify/flash-list": {
+        "optional": true
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fivecar/react-native-draglist.git"
