@@ -16,7 +16,7 @@ import type {
   StyleProp,
   ViewStyle,
 } from "react-native";
-import { Animated, Easing, PanResponder, View } from "react-native";
+import { Animated, Easing, PanResponder, Platform, View } from "react-native";
 import type { ActiveData, LayoutCache, PosExtent } from "./DragListContext";
 import { DragListProvider, useDragListContext } from "./DragListContext";
 
@@ -116,19 +116,13 @@ function FlashDragListImpl<T>(
     null,
   );
 
-  // The following refs exist only to avoid unnecessary re-renders, so we keep them up to date
-  // immediately using `useMemo` as opposed to `useEffect`, which allows them technically to be
-  // wrong/off for one render (since effects run after a render is done).
-  const hoverRef = useRef(props.onHoverChanged);
   // #78 - keep onHoverChanged up to date in our ref
-  hoverRef.current = useMemo(
-    () => props.onHoverChanged,
-    [props.onHoverChanged],
-  );
+  const hoverRef = useRef(props.onHoverChanged);
+  hoverRef.current = props.onHoverChanged;
   const reorderRef = useRef(props.onReordered);
-  reorderRef.current = useMemo(() => props.onReordered, [props.onReordered]);
+  reorderRef.current = props.onReordered;
   const keyExtractorRef = useRef(keyExtractor);
-  keyExtractorRef.current = useMemo(() => keyExtractor, [keyExtractor]);
+  keyExtractorRef.current = keyExtractor;
 
   // #76 When we finalize a reordering (i.e. when our parent gets `onReordered`), we need to
   // insulate ourselves from the parent changing the data we render without us controlling the
@@ -614,6 +608,18 @@ const CellRendererComponent = React.forwardRef(function CellRendererComponent<
       useNativeDriver: true,
     }).start();
   }, [index, panIndex, key, activeData, horizontal, isReordering]);
+
+  if (Platform.OS == "web") {
+    // RN Web does not fire onLayout as expected
+    // Workaround for https://github.com/necolas/react-native-web/issues/2481
+    useEffect(() => {
+      (ref as React.RefObject<View>).current?.measure((x, y, w, h) => {
+        layouts[key] = horizontal
+          ? { pos: x, extent: w }
+          : { pos: y, extent: h };
+      });
+    }, [index]);
+  }
 
   return (
     <AnimatedCellContainer
