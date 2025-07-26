@@ -490,7 +490,6 @@ function FlashDragListImpl<T>(
           onScroll={onDragScroll}
           // https://reactnative.dev/docs/scrollview#scrolleventthrottle
           scrollEventThrottle={16} // From react-native-draggable-flatlist; no idea why.
-          removeClippedSubviews={false} // https://github.com/facebook/react-native/issues/18616
           {...rest}
         />
       </View>
@@ -600,9 +599,12 @@ const CellRendererComponent = React.forwardRef(function CellRendererComponent<
           }).start();
         }
       }
+    } else {
+      anim.setValue(0);
     }
+
     return Animated.timing(anim, {
-      duration: activeData?.key ? SLIDE_MILLIS : 0,
+      duration: SLIDE_MILLIS,
       easing: Easing.inOut(Easing.linear),
       toValue: 0,
       useNativeDriver: true,
