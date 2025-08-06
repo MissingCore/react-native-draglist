@@ -29,7 +29,7 @@
   "author": "Philip Su",
   "license": "MIT",
   "peerDependencies": {
-    "@shopify/flash-list": "*",
+    "@shopify/flash-list": "<2",
     "react": ">=17.0.1",
     "react-native": ">=0.64.0"
   },
