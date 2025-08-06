@@ -590,9 +590,12 @@ function CellRendererComponent<T>(props: CellRendererProps<T>) {
           }).start();
         }
       }
+    } else {
+      anim.setValue(0);
     }
+
     return Animated.timing(anim, {
-      duration: activeData?.key ? SLIDE_MILLIS : 0,
+      duration: SLIDE_MILLIS,
       easing: Easing.inOut(Easing.linear),
       toValue: 0,
       useNativeDriver: true,
