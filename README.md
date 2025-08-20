@@ -1,7 +1,12 @@
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > For most of the documentation, refer to the [original `fivecar/react-native-draglist` repository](https://github.com/fivecar/react-native-draglist).
 
 # Installation
+
+> [!NOTE]
+> I've been experiencing the list flashing when an item is dropped after upgrading from `v3.9.7` to `v3.9.9`.
+>
+> [`a3847ce`](https://github.com/MissingCore/react-native-draglist/commit/a3847ce4f9265853a12b865ba30902e907d43c20) is the latest commit in our fork on `v3.9.7`.
 
 To use this fork of `fivecar/react-native-draglist`, you need to add the following under the `dependencies` field in `package.json`:
 
@@ -15,7 +20,7 @@ If you want to use a specific commit in this fork (ie: to prevent things acciden
 "react-native-draglist": "github:MissingCore/react-native-draglist#6e926d101e6293785d5cab4c014ccdc4812c19d2"
 ```
 
-> [!NOTE]  
+> [!NOTE]
 > `@shopify/flash-list` should be an (optional?) peer dependency, meaning an error shouldn't be thrown if it's not installed (ie: if you only use the `<FlatList />` variant).
 
 ## Use
