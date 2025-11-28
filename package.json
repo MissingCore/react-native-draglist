@@ -29,13 +29,13 @@
   "author": "Philip Su",
   "license": "MIT",
   "peerDependencies": {
-    "@shopify/flash-list": "<2",
+    "@shopify/flash-list": ">=2.0.0",
     "react": ">=17.0.1",
     "react-native": ">=0.64.0"
   },
   "peerDependenciesMeta": {
     "@shopify/flash-list": {
-        "optional": true
+      "optional": true
     }
   },
   "repository": {
@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^5.1.1",
-    "@shopify/flash-list": "^1.7.2",
+    "@shopify/flash-list": "^2.2.0",
     "@tsconfig/react-native": "^2.0.3",
     "@types/jest": "^29.2.3",
     "@types/react": "^18.2.6",

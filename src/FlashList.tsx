@@ -1,5 +1,5 @@
-import type { FlashListProps, ListRenderItemInfo } from "@shopify/flash-list";
-import { CellContainer, FlashList } from "@shopify/flash-list";
+import type { FlashListProps, FlashListRef, ListRenderItemInfo } from "@shopify/flash-list";
+import { FlashList } from "@shopify/flash-list";
 import React, {
   useCallback,
   useEffect,
@@ -20,9 +20,6 @@ import type {
 import { Animated, Easing, PanResponder, Platform, View } from "react-native";
 import type { ActiveData, LayoutCache, PosExtent } from "./DragListContext";
 import { DragListProvider, useDragListContext } from "./DragListContext";
-
-// FlashList's `CellRendererComponent` expects a `<CellContainer />`.
-const AnimatedCellContainer = Animated.createAnimatedComponent(CellContainer);
 
 // Each renderItem call is given this when rendering a DragList
 export interface DragListRenderItemInfo<T> extends ListRenderItemInfo<T> {
@@ -85,7 +82,7 @@ export interface FlashDragListProps<T>
 
 function FlashDragListImpl<T>(
   props: FlashDragListProps<T>,
-  ref?: React.ForwardedRef<FlashList<T> | null>,
+  ref?: React.ForwardedRef<FlashListRef<T> | null>,
 ) {
   const {
     wrapperStyle,
@@ -143,7 +140,7 @@ function FlashDragListImpl<T>(
   const lastDataRef = useRef(data);
   const dataGenRef = useRef(0);
 
-  const flatRef = useRef<FlashList<T> | null>(null);
+  const flatRef = useRef<FlashListRef<T> | null>(null);
   const flatWrapRef = useRef<View>(null);
   const flatWrapLayout = useRef<PosExtent>({
     pos: 0,
@@ -239,7 +236,7 @@ function FlashDragListImpl<T>(
         const maxWrapPos = Math.max(
           minWrapPos,
           flatWrapLayout.current.extent -
-            (dragItemExtent - pointerOffsetWithinItem)
+          (dragItemExtent - pointerOffsetWithinItem)
         );
         const clampedWrapPos = Math.min(
           Math.max(wrapPos, minWrapPos),
@@ -537,7 +534,8 @@ const ANIM_VALUE_NINER = new Animated.Value(999);
 
 type CellRendererProps = {
   index: number;
-  children: React.JSX.Element;
+  // In FlashList v2, this is an array.
+  children: React.JSX.Element[];
   onLayout?: (e: LayoutChangeEvent) => void;
   style?: StyleProp<ViewStyle>;
 };
@@ -561,7 +559,7 @@ const CellRendererComponent = React.forwardRef(function CellRendererComponent<
     it's pass through its `data` prop.
     SEE: https://shopify.github.io/flash-list/docs/usage/#cellrenderercomponent
   */
-  const key = keyExtractor(children.props.data as T, index);
+  const key = keyExtractor(children[0].props.item as T, index);
   const isActive = key === activeData?.key;
   const anim = useRef(new Animated.Value(0)).current;
   // https://github.com/fivecar/react-native-draglist/issues/53
@@ -573,17 +571,17 @@ const CellRendererComponent = React.forwardRef(function CellRendererComponent<
       props.style,
       isActive
         ? {
-            elevation: ANIM_VALUE_ONE,
-            zIndex: ANIM_VALUE_NINER,
-            transform: [horizontal ? { translateX: pan } : { translateY: pan }],
-          }
+          elevation: ANIM_VALUE_ONE,
+          zIndex: ANIM_VALUE_NINER,
+          transform: [horizontal ? { translateX: pan } : { translateY: pan }],
+        }
         : {
-            elevation: ANIM_VALUE_ZERO,
-            zIndex: ANIM_VALUE_ZERO,
-            transform: [
-              horizontal ? { translateX: anim } : { translateY: anim },
-            ],
-          },
+          elevation: ANIM_VALUE_ZERO,
+          zIndex: ANIM_VALUE_ZERO,
+          transform: [
+            horizontal ? { translateX: anim } : { translateY: anim },
+          ],
+        },
     ];
   }, [props.style, isActive, horizontal, pan, anim]);
   const onCellLayout = useCallback(
@@ -654,22 +652,20 @@ const CellRendererComponent = React.forwardRef(function CellRendererComponent<
   }
 
   return (
-    <AnimatedCellContainer
-      // @ts-expect-error - Detects the ref type as `undefined`.
+    <Animated.View
       ref={ref}
-      index={index}
       {...rest}
       style={style}
       onLayout={onCellLayout}
       key={key}
     >
       {children}
-    </AnimatedCellContainer>
+    </Animated.View>
   );
 });
 
 const FlashDragList = React.forwardRef(FlashDragListImpl) as <T>(
-  props: FlashDragListProps<T> & { ref?: React.ForwardedRef<FlashList<T>> },
+  props: FlashDragListProps<T> & { ref?: React.ForwardedRef<FlashListRef<T>> },
 ) => React.ReactElement;
 
 export default FlashDragList;
