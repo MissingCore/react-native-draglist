@@ -558,7 +558,7 @@ const CellRendererComponent = React.forwardRef(function CellRendererComponent<
     it's pass through its `data` prop.
     SEE: https://shopify.github.io/flash-list/docs/usage/#cellrenderercomponent
   */
-  const key = keyExtractor(children.props.data as T, index);
+  const key = keyExtractor(children[0].props.item as T, index);
   const isActive = key === activeData?.key;
   const anim = useRef(new Animated.Value(0)).current;
   // https://github.com/fivecar/react-native-draglist/issues/53
