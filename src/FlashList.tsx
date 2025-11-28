@@ -534,7 +534,8 @@ const ANIM_VALUE_NINER = new Animated.Value(999);
 
 type CellRendererProps = {
   index: number;
-  children: React.JSX.Element;
+  // In FlashList v2, this is an array.
+  children: React.JSX.Element[];
   onLayout?: (e: LayoutChangeEvent) => void;
   style?: StyleProp<ViewStyle>;
 };
