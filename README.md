@@ -24,6 +24,7 @@ If you want to use a specific commit in this fork (ie: to prevent things acciden
 | :----------------------------------: | :-------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------: |
 | Least Buggy Version w/ FlashList v1  |  [`v3.9.7`](https://github.com/fivecar/react-native-draglist/releases/tag/3.9.7)  | [`a3847ce4f9265853a12b865ba30902e907d43c20`](https://github.com/MissingCore/react-native-draglist/commit/a3847ce4f9265853a12b865ba30902e907d43c20) |
 | Last Version Supporting FlashList v1 | [`v3.10.0`](https://github.com/fivecar/react-native-draglist/releases/tag/3.10.0) | [`ef0b66675719a72c2096cf3438bb4aa7dacbf7a7`](https://github.com/MissingCore/react-native-draglist/commit/ef0b66675719a72c2096cf3438bb4aa7dacbf7a7) |
+|         FlashList v2 Support         | [`v3.10.0`](https://github.com/fivecar/react-native-draglist/releases/tag/3.10.0) | [`c9c1121242131c3ad4e7ab701bd3521b61a8a4cc`](https://github.com/MissingCore/react-native-draglist/commit/c9c1121242131c3ad4e7ab701bd3521b61a8a4cc) |
 
 ## Use
 
