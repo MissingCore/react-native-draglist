@@ -69,6 +69,10 @@ export interface FlashDragListProps<T>
   extends Omit<FlashListProps<T>, "renderItem"> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
+  /** Estimate size of item. We assume all items are of the same size. */
+  estimatedItemSize?: number;
+  /** Any fake "gap" we apply to the items. */
+  gap?: number;
   renderItem: (info: DragListRenderItemInfo<T>) => React.ReactElement | null;
   /** Applies style to the `<View />` wrapping the `<FlashList />`. */
   wrapperStyle?: StyleProp<ViewStyle>;
@@ -88,6 +92,8 @@ function FlashDragListImpl<T>(
     wrapperStyle,
     data,
     keyExtractor,
+    estimatedItemSize,
+    gap = 0,
     onDragBegin,
     onDragEnd,
     onScroll,
@@ -398,12 +404,33 @@ function FlashDragListImpl<T>(
     clearAutoScrollTimer();
   }, []);
 
+  const hasEstimatedLayouts = useRef(false);
   // Whenever new content arrives, we bump the generation number so stale animations don't continue
   // to apply.
   if (lastDataRef.current !== data) {
     lastDataRef.current = data;
     dataGenRef.current++;
     reset(false); // Don't trigger re-render because we're already rendering.
+
+    //! If we have a lot of items and don't start at the start of the list
+    //! (ie: via `initialScrollIndex` or using `scrollToIndex` on mount),
+    //! dragging an item would result in some funky layout (as if the item
+    //! doesn't exist as there's no empty space after "lifting" the item).
+    //! This is due to the recycling being done by FlashList as not all items
+    //! are rendered, resulting in `layouts` being incomplete.
+    //!
+    //! To get around this issue, we estimate the missing values in `layouts`
+    //! via the optionally passed `estimatedItemSize` & `gap` props.
+    if (!hasEstimatedLayouts.current && estimatedItemSize !== undefined) {
+      data.forEach((item, index) => {
+        const itemKey = keyExtractorRef.current(item, index);
+        layouts[itemKey] = {
+          extent: estimatedItemSize + gap * index,
+          pos: index === 0 ? 0 : estimatedItemSize + gap * (index - 1),
+        };
+      });
+      hasEstimatedLayouts.current = true;
+    }
   }
 
   // For reasons unclear to me, you need this useLayoutEffect here -- _even if you have an empty
