@@ -69,9 +69,9 @@ export interface FlashDragListProps<T>
   extends Omit<FlashListProps<T>, "renderItem"> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
-  /** Estimate size of item. We assume all items are of the same size. */
+  /** Estimated size of rendered item (which we assume are all the same size). */
   estimatedItemSize?: number;
-  /** Any fake "gap" we apply to the items. */
+  /** Any fake "gap" we apply to the rendered items. */
   gap?: number;
   renderItem: (info: DragListRenderItemInfo<T>) => React.ReactElement | null;
   /** Applies style to the `<View />` wrapping the `<FlashList />`. */
