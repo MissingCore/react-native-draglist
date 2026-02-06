@@ -71,6 +71,8 @@ export interface FlashDragListProps<T>
   extends Omit<FlashListProps<T>, "renderItem"> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
+  /** Any fake "gap" we apply to the rendered items. */
+  gap?: number;
   renderItem: (info: DragListRenderItemInfo<T>) => React.ReactElement | null;
   /** Applies style to the `<View />` wrapping the `<FlashList />`. */
   wrapperStyle?: StyleProp<ViewStyle>;
@@ -90,6 +92,7 @@ function FlashDragListImpl<T>(
     wrapperStyle,
     data,
     keyExtractor,
+    gap = 0,
     onDragBegin,
     onDragEnd,
     onScroll,
@@ -373,6 +376,7 @@ function FlashDragListImpl<T>(
     clearAutoScrollTimer();
   }, []);
 
+  const hasEstimatedLayouts = useRef(false);
   useEffect(() => {
     // #76 Deliberately sync dataRef with a useEffect, not a useMemo, so that we update it after
     // rendering. This only truly matters during a reorder-triggered rendering, where we keep our
@@ -383,6 +387,31 @@ function FlashDragListImpl<T>(
       panIndex: -1,
       detritus: Math.random().toString(),
     }); // Trigger a re-render whenever data changes
+
+    //! If we have a lot of items and don't start at the start of the list
+    //! (ie: via `initialScrollIndex` or using `scrollToIndex` on mount),
+    //! dragging an item would result in some funky layout (as if the item
+    //! doesn't exist as there's no empty space after "lifting" the item).
+    //! This is due to the recycling being done by FlashList as not all items
+    //! are rendered, resulting in `layouts` being incomplete.
+    //!
+    //! To get around this issue, we estimate the missing values in `layouts`
+    //! via the optionally passed `estimatedItemSize` & `gap` props.
+    if (
+      !hasEstimatedLayouts.current &&
+      props.estimatedItemSize !== undefined &&
+      data.length !== 0
+    ) {
+      const estimateWithoutGap = props.estimatedItemSize - gap;
+      data.forEach((item, index) => {
+        const itemKey = keyExtractorRef.current(item, index);
+        layouts[itemKey] = {
+          extent: estimateWithoutGap + gap * index,
+          pos: index === 0 ? 0 : estimateWithoutGap + gap * (index - 1),
+        };
+      });
+      hasEstimatedLayouts.current = true;
+    }
   }, [data]);
 
   const renderDragItem = useCallback(
